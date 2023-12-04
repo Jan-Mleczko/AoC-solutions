@@ -1,126 +1,96 @@
 #include <stdio.h>
+#include "..\aochelp.c"
 
-#define YES	1
-#define NO	0
+char *strend (char *str) {
+	while (*str)
+		++str;
+	return str;
+	}
 
-#define LNSIZE 50
+int peek (char *str) {
+	int result;
 
-unsigned int phlen;
-
-char infront (char *str, char *phrase) {
-	char c;
-
-	phlen = 0;
-	while (c = *phrase++) {
-		if (*str++ != c)
-			return NO;
-
-		++phlen;
-		}
-
-	return YES;
+	if (result = aocexpect (str))
+		aoclaters (str + 1, strend (str));
+	return result;
 	}
 
 int main () {
-	unsigned int calibsum;
-	char ch;
-	char linebuf[LNSIZE], *linepos, *scanpos;
-	char fdig, ldig;
-	char nodig, eof;
-	char dig;
+	unsigned int calib, sum;
+	char c;
+	char digit, fdig, ldig;
+	char isfst;
 
-	calibsum = 0;
-
+	aocstd ();
+	sum = 0;
 line:
-	linepos = linebuf;
+	isfst = 1;
+pline:
+	c = aocread ();
+	if (aoceof)
+		goto alldone;
+	if (c == '\n')
+		goto linedone;
 
-read:
-	ch = getchar ();
-	if ((eof = (ch == EOF)) || ch == '\n');
-		goto endline;
+	if (c >= '0' && c <= '9') {
+		digit = c - '0';
+		goto digit;
+		}
+	aoclater (c);
 
-	*linepos = ch;
-	++linepos;
-	printf ("%p\n", linepos);
-
-	goto read;
-
-endline:
-	*linepos = 0;
-	scanpos = linebuf;
-	nodig = YES;
-	printf ("%d\n", ch);
-	printf ("%p %p\n", scanpos, linepos);
-
-	while (scanpos < linepos) {
-		puts ("SCANNING LINE");
-		ch = *scanpos;
-		if (ch >= '0' && ch <= '9') {
-			dig = ch - '0';
-			++scanpos;
-			goto founddig;
-			}
-		
-		if (infront (scanpos, "one")) {
-			dig = 1;
-			goto spelldig;
-			}
-		if (infront (scanpos, "two")) {
-			dig = 2;
-			goto spelldig;
-			}
-		if (infront (scanpos, "three")) {
-			dig = 3;
-			goto spelldig;
-			}
-		if (infront (scanpos, "four")) {
-			dig = 4;
-			goto spelldig;
-			}
-		if (infront (scanpos, "five")) {
-			dig = 5;
-			goto spelldig;
-			}
-		if (infront (scanpos, "six")) {
-			dig = 6;
-			goto spelldig;
-			}
-		if (infront (scanpos, "seven")) {
-			dig = 7;
-			goto spelldig;
-			}
-		if (infront (scanpos, "eight")) {
-			dig = 8;
-			goto spelldig;
-			}
-		if (infront (scanpos, "nine")) {
-			dig = 9;
-			goto spelldig;
-			}
-
-		continue;
-
-	spelldig:
-		scanpos += phlen;
-
-	founddig:
-		printf ("Found digit %d.\n", dig);
-
-		if (nodig) {
-			fdig = dig;
-			nodig = NO;
-			}
-		ldig = dig;
-
+	if (peek ("one")) {
+		digit = 1;
+		goto digit;
+		}
+	if (peek ("two")) {
+		digit = 2;
+		goto digit;
+		}
+	if (peek ("three")) {
+		digit = 3;
+		goto digit;
+		}
+	if (peek ("four")) {
+		digit = 4;
+		goto digit;
+		}
+	if (peek ("five")) {
+		digit = 5;
+		goto digit;
+		}
+	if (peek ("six")) {
+		digit = 6;
+		goto digit;
+		}
+	if (peek ("seven")) {
+		digit = 7;
+		goto digit;
+		}
+	if (peek ("eight")) {
+		digit = 8;
+		goto digit;
+		}
+	if (peek ("nine")) {
+		digit = 9;
+		goto digit;
 		}
 
-	calibsum += fdig * 10 + ldig;
+	aocignore (1);
+	goto pline;
 
-	if (!eof)
+digit:
+	if (aocfirst (&isfst))
+		fdig = digit;
+	ldig = digit;
+	goto pline;
+
+linedone:
+	sum += calib = fdig * 10 + ldig;
+	/*printf ("Calibration val.: %u.\n", calib);*/
+	if (!aoceof)
 		goto line;
-
-end:
-	printf ("Sum of calibration values: %u.\n", calibsum);
+alldone:
+	aocclose ();
+	printf ("Sum of calibration values: %u.\n", sum);
 	return 0;
 	}
-
